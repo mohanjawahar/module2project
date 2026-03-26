@@ -1,4 +1,4 @@
-# Load SGJobsDB into dataframe csv
+# Load Ecommerce into dataframe csv
 import os
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -44,14 +44,25 @@ def construct_table_name(file_name):
 
 # Construct the full table reference
 # table_ref = f"{project_id}.{dataset_id}.{table_id}"
+def get_schema_for_table(table_id):
+    schemas = {
+        "product_category_translation": [
+            bigquery.SchemaField("product_category_name", "STRING"),
+            bigquery.SchemaField("product_category_name_english", "STRING"),
+        ],
+    }
+    return schemas.get(table_id)
+
 
 # Configure the load job
 job_config = bigquery.LoadJobConfig(
     source_format=bigquery.SourceFormat.CSV,
     skip_leading_rows=1,  # Skip the header row
-    autodetect=True,      # Automatically detect schema and data types
+    #    autodetect=True,      # Automatically detect schema and data types
     # To fix the missing quote characters when uploading csv file
-    allow_quoted_newlines=True
+    allow_quoted_newlines=True,
+    field_delimiter=",",
+    write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
 )
 
 # Create the dataset if it does not exist
@@ -70,6 +81,12 @@ for file_path in file_list:
     table_ref = f"{project_id}.{dataset_id}.{table_id}"
     with open(file_path, "rb") as source_file:
         # Initiate the load job
+        schema = get_schema_for_table(table_id)
+        if schema:
+            job_config.schema = schema
+        else:
+            job_config.autodetect = True
+
         load_job = client.load_table_from_file(
             source_file,
             table_ref,
