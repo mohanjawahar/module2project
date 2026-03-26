@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: int_order_items_enriched
+    description: "Order items enriched with product and seller attributes"
+
+  - name: int_orders_enriched
+    description: "Orders enriched with customer and timing metrics"
+
+  - name: int_customer_orders
+    description: "Customer-level order rollup"

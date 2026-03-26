@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: ecommerce_raw
+    database: "pilot-488720"      # "{{ env_var('pilot-488720') }}"
+    schema: "{{ env_var('BQ_DATASET_RAW', 'ecommerce') }}"
+    tables:
+      - name: customers
+      - name: geolocation
+      - name: order_items
+      - name: order_payments
+      - name: order_reviews
+      - name: orders
+      - name: products
+      - name: sellers
+      - name: product_category_translation
