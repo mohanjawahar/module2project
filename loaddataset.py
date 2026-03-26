@@ -43,7 +43,7 @@ def construct_table_name(file_name):
 
 
 # Construct the full table reference
-# table_ref = f"{project_id}.{dataset_id}.{table_id}"
+# Construct the scheme for one of the table
 def get_schema_for_table(table_id):
     schemas = {
         "product_category_translation": [
