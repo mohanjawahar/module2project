@@ -1,10 +1,10 @@
 # https://docs.getdbt.com/docs/core/connect-data-platform/bigquery-setup
-liquor_sales: # profile name. 
+ecommerce_dbt:
 # This is where dbt looks for from dbt_project.yml -> find the named profile here. 
 # Can also be overwritten by dbt run --profiles. See dbt run --help for more info
   outputs:
     dev:
-      dataset: liquor_demo
+      dataset: ecommerce
       job_execution_timeout_seconds: 300
       job_retries: 2
       location: US
