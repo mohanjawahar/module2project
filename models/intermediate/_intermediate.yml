@@ -6,6 +6,3 @@ models:
 
   - name: int_orders_enriched
     description: "Orders enriched with customer and timing metrics"
-
-  - name: int_customer_orders
-    description: "Customer-level order rollup"

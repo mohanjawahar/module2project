@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: stg_customers
-    description: "Cleaned Olist customers"
+    description: "Cleaned customers"
     columns:
       - name: customer_id
         tests: [not_null, unique]
@@ -19,11 +19,27 @@ models:
               to: ref('stg_customers')
               field: customer_id
 
-  - name: stg_order_items
-    description: "Cleaned order items"
-
+ 
   - name: stg_products
     description: "Cleaned products"
 
   - name: stg_sellers
     description: "Cleaned sellers"
+  
+  - name: stg_product_category_translation
+    columns:
+      - name: product_category_name
+        tests:
+          - not_null
+          - unique
+  
+  - name: stg_order_payments
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - order_id
+              - payment_sequential
+              - payment_type
+              - payment_installments
+              - payment_amount

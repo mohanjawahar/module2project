@@ -54,16 +54,15 @@ def get_schema_for_table(table_id):
     return schemas.get(table_id)
 
 
+schema = True
 # Configure the load job
 job_config = bigquery.LoadJobConfig(
     source_format=bigquery.SourceFormat.CSV,
     skip_leading_rows=1,  # Skip the header row
-    #    autodetect=True,      # Automatically detect schema and data types
-    # To fix the missing quote characters when uploading csv file
     allow_quoted_newlines=True,
-    field_delimiter=",",
-    write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
-)
+    quote_character='"',
+    autodetect=True,
+    field_delimiter=",")
 
 # Create the dataset if it does not exist
 try:
@@ -81,11 +80,17 @@ for file_path in file_list:
     table_ref = f"{project_id}.{dataset_id}.{table_id}"
     with open(file_path, "rb") as source_file:
         # Initiate the load job
-        schema = get_schema_for_table(table_id)
+        print(f"Table id in loop: {table_id} : {table_ref}")
         if schema:
+            schema = get_schema_for_table(table_id)
+            print(f"coming in if condition: {schema}")
             job_config.schema = schema
+            print(f"coming in if job config: {source_file}")
         else:
+            print(f"coming in else condition: {schema}")
+            job_config.schema = None
             job_config.autodetect = True
+            print(f"coming in else job config : {source_file}")
 
         load_job = client.load_table_from_file(
             source_file,

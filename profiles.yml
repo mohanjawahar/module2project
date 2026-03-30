@@ -5,7 +5,7 @@ ecommerce_dbt:
   outputs:
     dev:
       dataset: ecommerce
-      job_execution_timeout_seconds: 300
+      job_execution_timeout_seconds: 1400
       job_retries: 2
       location: US
       method: oauth

@@ -7,10 +7,18 @@ models:
         tests:
           - not_null
           - unique
+      - name: customer_key
+        tests:
+          - not_null
+          - unique
 
   - name: dim_products
     columns:
       - name: product_id
+        tests:
+          - not_null
+          - unique
+      - name: product_key
         tests:
           - not_null
           - unique
@@ -21,10 +29,29 @@ models:
         tests:
           - not_null
           - unique
+      - name: seller_key
+        tests:
+          - not_null
+          - unique
 
-  - name: fct_orders
+  - name: dim_dates
+    columns:
+      - name: date_key
+        tests:
+          - not_null
+          - unique
+      - name: full_date
+        tests:
+          - not_null
+          - unique
+
+  - name: dim_orders
     columns:
       - name: order_id
+        tests:
+          - not_null
+          - unique
+      - name: order_key
         tests:
           - not_null
           - unique
@@ -36,8 +63,74 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
 
-  - name: fct_payments
+  - name: fct_sales
     columns:
       - name: order_id
         tests:
           - not_null
+      - name: order_item_id
+        tests:
+          - not_null
+      - name: customer_key
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_key
+      - name: product_key
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_products')
+                field: product_key
+      - name: seller_key
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_sellers')
+                field: seller_key
+      - name: order_date_key
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_dates')
+                field: date_key
+      - name: total_sale_amount
+        tests:
+          - not_null
+
+  - name: fct_payments
+    columns:
+      - name: payment_key
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - not_null
+  
+  - name: stg_order_items
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+      - name: order_item_id
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - order_id
+              - order_item_id
+
+  - name: int_customer_orders
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+          - unique

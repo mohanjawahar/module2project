@@ -6,16 +6,16 @@ from airflow import DAG
 from airflow.providers.standard.operators.bash import BashOperator
 
 PROJECT_DIR = os.getenv(
-    "PROJECT_DIR", "/Users/mohanjawahar")
+    "PROJECT_DIR", "/Users/mohanjawahar/gitrepo/module2project")
 DATA_DIR = os.getenv(
-    "DATA_DIR", f"{PROJECT_DIR}/DataScience/data/module2data")
+    "DATA_DIR", "/Users/mohanjawahar/DataScience/data/module2data")
 DBT_DIR = os.getenv(
-    "DBT_DIR", f"{PROJECT_DIR}/gitrepo/module2project")
+    "DBT_DIR", f"{PROJECT_DIR}")
 DBT_PROFILES_DIR = os.getenv("DBT_PROFILES_DIR", DBT_DIR)
 
 
 default_args = {
-    "owner": "dag-pipeline",
+    "owner": "ecommerce-dag",
     "depends_on_past": False,
     "email_on_failure": False,
     "retries": 1,
@@ -23,38 +23,43 @@ default_args = {
 }
 
 with DAG(
-    dag_id="ecommerce_elt_bigquery_pipeline",
+    dag_id="ecommerce_dag",
     default_args=default_args,
     description="Ingest Olist data, run dbt on BigQuery, execute data quality tests, and analysis",
-    start_date=datetime(2025, 1, 1),
-    schedule="None",
+    schedule=None,
     catchup=False,
     tags=["ecommerce", "elt", "dbt", "bigquery"],
 ) as dag:
 
+    BashOperator(
+        task_id="echo_ok",
+        bash_command='echo "Airflow works"'
+    )
+
     ingest = BashOperator(
         task_id="ingest_raw_data_bigquery",
-        bash_command=f"cd {PROJECT_DIR} && python /gitrepo/module2project/loaddataset.py",
+        bash_command=f"cd {PROJECT_DIR} && python loaddataset.py",
     )
 
     dbt_run = BashOperator(
         task_id="dbt_run",
-        bash_command=f"cd {DBT_DIR} && dbt run --profiles-dir {DBT_PROFILES_DIR}",
+        bash_command=f"cd {DBT_DIR} && dbt run --profiles-dir {DBT_DIR}",
     )
 
     dbt_test = BashOperator(
         task_id="dbt_test",
         bash_command=f"cd {DBT_DIR} && dbt test --profiles-dir {DBT_PROFILES_DIR}",
     )
-'''
+
     data_quality = BashOperator(
         task_id="custom_data_quality",
-        bash_command=f"cd {PROJECT_DIR} && python tests/run_data_quality_bigquery.py",
+        bash_command=f"cd {PROJECT_DIR} && python tests/rundataquality.py",
     )
 
     analytics = BashOperator(
         task_id="run_analysis",
-        bash_command=f"cd {PROJECT_DIR} && python analysis/eda_bigquery.py",
+        bash_command=f"cd {PROJECT_DIR} && python analysis/eda.py",
     )
-'''
-ingest >> dbt_run >> dbt_test
+
+
+ingest >> dbt_run >> dbt_test >> data_quality >> analytics

@@ -1,20 +1,28 @@
-with date_spine as (
+with bounds as (
+    select
+        min(date(order_purchase_ts)) as min_date,
+        max(date(order_purchase_ts)) as max_date
+    from {{ ref('stg_orders') }}
+),
 
-    select date_day
-    from unnest(generate_date_array('2016-01-01', '2019-12-31')) as date_day
-
+series as (
+    select full_date
+    from bounds,
+    unnest(generate_date_array(min_date, max_date, interval 1 day)) as full_date
 )
 
 select
-    date_day,
-    extract(year from date_day) as year_num,
-    extract(quarter from date_day) as quarter_num,
-    extract(month from date_day) as month_num,
-    format_date('%Y-%m', date_day) as year_month,
-    extract(day from date_day) as day_num,
-    extract(dayofweek from date_day) as day_of_week_num,
+    cast(format_date('%Y%m%d', full_date) as int64) as date_key,
+    full_date,
+    extract(year from full_date) as year,
+    extract(month from full_date) as month,
+    extract(day from full_date) as day,
+    extract(quarter from full_date) as quarter,
+    format_date('%B', full_date) as month_name,
+    format_date('%Y-%m', full_date) as year_month,
+    cast(mod(extract(dayofweek from full_date) + 5, 7) + 1 as int64) as day_of_week,
     case
-        when extract(dayofweek from date_day) in (1, 7) then true
+        when extract(dayofweek from full_date) in (1, 7) then true
         else false
     end as is_weekend
-from date_spine
+from series
