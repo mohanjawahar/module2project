@@ -13,7 +13,7 @@ deduped as (
     from source_data
     qualify row_number() over (
         partition by customer_id
-        order by customer_id
+        order by customer_unique_id
     ) = 1
 )
 

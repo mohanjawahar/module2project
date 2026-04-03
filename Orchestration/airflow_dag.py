@@ -53,7 +53,7 @@ with DAG(
 
     data_quality = BashOperator(
         task_id="custom_data_quality",
-        bash_command=f"cd {PROJECT_DIR} && python tests/rundataquality.py",
+        bash_command=f"cd {PROJECT_DIR} && python tests/rundataquality.py --project-id pilot-488720 --dataset ecommerce_marts --location US 2>&1",
     )
 
     analytics = BashOperator(
